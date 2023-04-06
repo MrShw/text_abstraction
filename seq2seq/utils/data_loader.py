@@ -1,4 +1,3 @@
-# step5
 import numpy as np
 import pandas as pd
 import os
@@ -14,16 +13,13 @@ root_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(root_path)
 
 
-# 获得合适的最大长度值(被build_dataset调用)
 def get_max_len(data):
-    # data: 待统计的数据train_df['Question']
-    # 句子最大长度为空格数+1
+    # data: train_df['Question']
     max_lens = data.apply(lambda x: x.count(' ') + 1)
-    # 平均值+2倍方差的方式
+
     return int(np.mean(max_lens) + 2 * np.std(max_lens))
 
 
-# 完成文本语句单词到id的数字映射函数
 def transform_data(sentence, word_to_id):
     words = sentence.split(' ')     # sentence: 'word1 word2 word3 ...'  ->  [index1, index2, index3 ...]
     ids = [word_to_id[w] if w in word_to_id else word_to_id['<UNK>'] for w in words]
@@ -31,7 +27,6 @@ def transform_data(sentence, word_to_id):
     return ids
 
 
-# 填充特殊标识符的函数，根据max_len和vocab填充<START> <STOP> <PAD> <UNK>
 def pad_proc(sentence, max_len, word_to_id):
     words = sentence.strip().split(' ')
     words = words[:max_len]
@@ -40,11 +35,9 @@ def pad_proc(sentence, max_len, word_to_id):
     sentence = ['<START>'] + sentence + ['<STOP>']
     sentence = sentence + ['<PAD>'] * (max_len - len(words))
 
-    # 以空格连接列表, 返回结果字符串
     return ' '.join(sentence)
 
 
-# 加载停用词(程序调用)
 def load_stop_words(stop_word_path):
     f = open(stop_word_path, 'r', encoding='utf-8')
     stop_words = f.readlines()
@@ -53,7 +46,6 @@ def load_stop_words(stop_word_path):
     return stop_words
 
 
-# 清洗文本的函数，特殊符号去除(被sentence_proc调用)
 def clean_sentence(sentence):
     if isinstance(sentence, str):
         sentence = re.sub(r"\D(\d\.)\D", "", sentence)
@@ -69,15 +61,13 @@ def clean_sentence(sentence):
         return ''
 
 
-# 过滤停用词的函数
 def filter_stopwords(seg_list):
     stop_words = load_stop_words(stop_words_path)
-    words = [word for word in seg_list if word]     # seg_list: 切好词的列表 [word1 ,word2 .......]
+    words = [word for word in seg_list if word]     # seg_list: [word1 ,word2 .......]
 
     return [word for word in words if word not in stop_words]
 
 
-# 语句处理的函数，预处理模块(处理一条句子, 被sentences_proc调用)
 def sentence_proc(sentence):
     sentence = clean_sentence(sentence)
     words = jieba.cut(sentence)
@@ -86,7 +76,6 @@ def sentence_proc(sentence):
     return ' '.join(words)
 
 
-# 语句处理的函数，预处理模块(处理一个句子列表, 对每个句子调用sentence_proc操作)
 def sentences_proc(df):
     for col_name in ['Brand', 'Model', 'Question', 'Dialogue']:
         df[col_name] = df[col_name].apply(sentence_proc)
@@ -96,11 +85,8 @@ def sentences_proc(df):
 
     return df
 
-
-# 加载处理好的训练样本和训练标签.npy文件(执行完build_dataset后才能使用)
 def load_train_dataset(max_enc_len=300, max_dec_len=50):
-    # max_enc_len: 最长样本长度, 后面的截断
-    # max_dec_len: 最长标签长度, 后面的截断
+
     train_X = np.load(train_x_path)
     train_Y = np.load(train_y_path)
     train_X = train_X[:, :max_enc_len]
@@ -109,15 +95,13 @@ def load_train_dataset(max_enc_len=300, max_dec_len=50):
     return train_X, train_Y
 
 
-# 加载处理好的测试样本.npy文件(执行完build_dataset后才能使用)
 def load_test_dataset(max_enc_len=300):
-    # max_enc_len: 最长样本长度, 后面的截断
     test_X = np.load(test_x_path)
     test_X = test_X[:, :max_enc_len]
+
     return test_X
 
 
-# 完成本步骤总体逻辑的函数build_dataset()函数，用于数据加载 + 预处理(只需执行一次)
 def build_dataset(train_raw_data_path, test_raw_data_path):
 
     print('1. 加载原始数据')
@@ -161,7 +145,6 @@ def build_dataset(train_raw_data_path, test_raw_data_path):
     print('The word_to_vector file has saved!')
     print('\n')
 
-    # 构建word_to_id字典和id_to_word字典, 根据第6步存储的合并文件数据来完成.
     word_to_id = {}
     count = 0
 
@@ -199,16 +182,13 @@ def build_dataset(train_raw_data_path, test_raw_data_path):
     print('最终构造完毕字典, word_to_id容量=', len(word_to_id))
     print('count=', count)
 
-    # 8. 模型输入：将Question和Dialogue用空格连接作为模型输入形成train_df['X']
     print("8. 将Question和Dialogue用空格连接作为模型输入形成train_df['X']")
     train_df['X'] = train_df[['Question', 'Dialogue']].apply(lambda x: ' '.join(x), axis=1)
     test_df['X'] = test_df[['Question', 'Dialogue']].apply(lambda x: ' '.join(x), axis=1)
     print('\n')
 
-    # 9. 填充<START>, <STOP>, <UNK>和<PAD>, 使数据变为等长
     print('9. 填充<START>, <STOP>, <UNK> 和 <PAD>, 使数据变为等长')
 
-    # 获取适当的最大长度
     train_x_max_len = get_max_len(train_df['X'])
     test_x_max_len = get_max_len(test_df['X'])
     train_y_max_len = get_max_len(train_df['Report'])
@@ -217,22 +197,19 @@ def build_dataset(train_raw_data_path, test_raw_data_path):
     print('填充前测试集样本的最大长度为: ', test_x_max_len)
     print('填充前训练集标签的最大长度为: ', train_y_max_len)
 
-    # 选训练集和测试集中较大的值
     x_max_len = max(train_x_max_len, test_x_max_len)
 
-    # 训练集X填充处理
     # train_df['X'] = train_df['X'].apply(lambda x: pad_proc(x, x_max_len, vocab))
     print('训练集X填充PAD, START, STOP, UNK处理中...')
     train_df['X'] = train_df['X'].apply(lambda x: pad_proc(x, x_max_len, word_to_id))
-    # 测试集X填充处理
+
     print('测试集X填充PAD, START, STOP, UNK处理中...')
     test_df['X'] = test_df['X'].apply(lambda x: pad_proc(x, x_max_len, word_to_id))
-    # 训练集Y填充处理
+
     print('训练集Y填充PAD, START, STOP, UNK处理中...')
     train_df['Y'] = train_df['Report'].apply(lambda x: pad_proc(x, train_y_max_len, word_to_id))
     print('\n')
 
-    # 10. 保存填充<START>, <STOP>, <UNK>和<PAD>后的X和Y
     print('10. 保存填充<START>, <STOP>, <UNK> 和 <PAD>后的X和Y')
     train_df['X'].to_csv(train_x_pad_path, index=None, header=False)
     train_df['Y'].to_csv(train_y_pad_path, index=None, header=False)
@@ -240,11 +217,9 @@ def build_dataset(train_raw_data_path, test_raw_data_path):
     print('填充后的三个文件保存完毕!')
     print('\n')
 
-    # 11. 重新构建word_to_id字典和id_to_word字典, 根据第10步存储的3个文件数据来完成.
     word_to_id = {}
     count = 0
 
-    # 对训练集数据X进行处理
     with open(train_x_pad_path, 'r', encoding='utf-8') as f1:
         for line in f1.readlines():
             line = line.strip().split(' ')
@@ -255,7 +230,6 @@ def build_dataset(train_raw_data_path, test_raw_data_path):
 
     print('训练集X字典构造完毕, word_to_id容量: ', len(word_to_id))
 
-    # 对训练集数据Y进行处理
     with open(train_y_pad_path, 'r', encoding='utf-8') as f2:
         for line in f2.readlines():
             line = line.strip().split(' ')
@@ -266,7 +240,6 @@ def build_dataset(train_raw_data_path, test_raw_data_path):
 
     print('训练集Y字典构造完毕, word_to_id容量: ', len(word_to_id))
 
-    # 对测试集数据X进行处理
     with open(test_x_pad_path, 'r', encoding='utf-8') as f3:
         for line in f3.readlines():
             line = line.strip().split(' ')
@@ -278,7 +251,6 @@ def build_dataset(train_raw_data_path, test_raw_data_path):
     print('测试集X字典构造完毕, word_to_id容量: ', len(word_to_id))
     print('单词总数量count= ', count)
 
-    # 构造逆向字典id_to_word
     id_to_word = {}
     for w, i in word_to_id.items():
         id_to_word[i] = w
@@ -301,7 +273,6 @@ def build_dataset(train_raw_data_path, test_raw_data_path):
     test_ids_x = test_df['X'].apply(lambda x: transform_data(x, word_to_id))
     print('\n')
 
-    # 14. 数据转换成numpy数组(需等长)
     # 将索引列表转换成矩阵 [32800, 403, 986, 246, 231] --> array([[32800, 403, 986, 246, 231], ...])
     print('14. 数据转换成numpy数组(需等长)')
     train_X = np.array(train_ids_x.tolist())
@@ -310,7 +281,6 @@ def build_dataset(train_raw_data_path, test_raw_data_path):
     print('转换为numpy数组的形状如下: \ntrain_X的shape为: ', train_X.shape, '\ntrain_Y的shape为: ', train_Y.shape, '\ntest_X的shape为: ', test_X.shape)
     print('\n')
 
-    # 15. 保存数据
     print('15. 保存数据......')
     np.save(train_x_path, train_X)
     np.save(train_y_path, train_Y)

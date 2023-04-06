@@ -7,11 +7,9 @@ df = pd.read_csv("./data/dev.csv")
 
 
 def clean_sentence(sentence):
-    # 只提取技师的话
     sub_jishi = []
     sub = sentence.split('|')
 
-    # 遍历每个子句
     for i in range(len(sub)):
         if not sub[i].endswith('。'):
             sub[i] += '。'

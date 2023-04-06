@@ -29,15 +29,14 @@ decoder_save_name = root_path + '/src/saved_model/model_decoder.pt'
 attention_save_name = root_path + '/src/saved_model/model_attention.pt'
 reduce_state_save_name = root_path + '/src/saved_model/model_reduce_state.pt'
 model_save_path = root_path + '/src/saved_model/pgn_model.pt'
-max_enc_len = 300  # exclusive of special tokens such as EOS
-max_dec_len = 100  # exclusive of special tokens such as EOS
+max_enc_len = 300
+max_dec_len = 100 
 truncate_enc = True
 truncate_dec = True
-# 下面两个参数关系到predict阶段的展示效果, 需要按业务场景调参
 min_dec_steps = 30
-# 在Greedy Decode的时候设置为50
+# Greedy Decode的时候设置为50
 # max_dec_steps = 50
-# 在Beam-search Decode的时候设置为30
+# Beam-search Decode的时候设置为30
 max_dec_steps = 30
 
 enc_rnn_dropout = 0.5

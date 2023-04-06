@@ -1,7 +1,3 @@
-# step3
-# argparse是Python标准库中的一个模块，用于解析命令行参数。
-# 可以使用argparse来定义程序所需的参数，并且可以自动生成帮助信息。
-# argparse可以轻松地处理参数的解析和错误处理，让代码更加清晰和易于维护。
 import argparse
 
 

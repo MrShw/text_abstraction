@@ -1,7 +1,6 @@
-# step1
 import os
 
-# 设置项目的root目录, 方便后续代码文件的导入
+# 设置项目的root目录
 # /project_text_summary/pgn
 root_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # print(root_path)

@@ -1,4 +1,3 @@
-# step5
 import os
 import sys
 
@@ -16,10 +15,8 @@ from pgn_attention.utils import config
 import torch
 
 
-# 函数耗时计量函数，修饰器
 def timer(module):
     def wrapper(func):
-        # func: 一个函数名, 下面的计时函数就是计算这个func函数的耗时
         def cal_time( *args, **kwargs):
             t1 = time.time()
             res = func( *args, **kwargs)
@@ -41,7 +38,6 @@ def count_words(counter, text):
             counter[word] += 1
 
 
-# 对一个批次batch_size个样本, 按照x_len字段长短进行排序, 并返回排序后的结果
 def sort_batch_by_len(data_batch):
     res = {'x': [],
            'y': [],
@@ -64,7 +60,6 @@ def sort_batch_by_len(data_batch):
     return data_batch
 
 
-# 原始文本映射成ids张量
 def source2ids(source_words, vocab):
     ids = []
     oovs = []
@@ -81,7 +76,7 @@ def source2ids(source_words, vocab):
 
     return ids, oovs
 
-# 摘要文本映射成数字化ids张量
+
 def abstract2ids(abstract_words, vocab, source_oovs):
     ids = []
     unk_id = vocab.UNK
@@ -99,7 +94,6 @@ def abstract2ids(abstract_words, vocab, source_oovs):
     return ids
 
 
-# 将输出张量ids结果映射成自然语言文本
 def outputids2words(id_list, source_oovs, vocab):
     words = []
     for i in id_list:
@@ -119,7 +113,6 @@ def outputids2words(id_list, source_oovs, vocab):
     return ' '.join(words)
 
 
-# 创建小顶堆, 包含k个点的特殊二叉树, 始终保持二叉树中最小的值在root根节点
 def add2heap(heap, item, k):
     if len(heap) < k:
         heapq.heappush(heap, item)
@@ -127,7 +120,6 @@ def add2heap(heap, item, k):
         heapq.heappushpop(heap, item)
 
 
-# 将文本张量中所有OOV单词的id, 全部替换成<UNK>对应的id
 def replace_oovs(in_tensor, vocab):
     oov_token = torch.full(in_tensor.shape, vocab.UNK, dtype=torch.long).to(config.DEVICE)
     out_tensor = torch.where(in_tensor > len(vocab) - 1, oov_token, in_tensor)
@@ -135,7 +127,6 @@ def replace_oovs(in_tensor, vocab):
     return out_tensor
 
 
-# 获取模型训练中若干超参数信息
 def config_info(config):
     info = 'model_name = {}, pointer = {}, coverage = {}, fine_tune = {}, scheduled_sampling = {}, weight_tying = {},' + 'source = {}  '
     return (info.format(config.model_name, config.pointer, config.coverage, config.fine_tune, config.scheduled_sampling, config.weight_tying, config.source))
@@ -147,7 +138,6 @@ class ScheduledSampler():
         self.scheduled_probs = [i / (self.phases - 1) for i in range(self.phases)]
 
     def teacher_forcing(self, phase):
-        # According to a certain probability to choose whether to execute teacher_forcing
         sampling_prob = random.random()
         if sampling_prob >= self.scheduled_probs[phase]:
             return True

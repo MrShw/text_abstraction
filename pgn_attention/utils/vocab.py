@@ -1,5 +1,3 @@
-# step6
-# 在数据准备阶段, 有一个重要的类, 就是数据字典vocab（起到的作用就是word_to_id）
 import os
 import sys
 
@@ -15,7 +13,6 @@ from pgn_attention.utils.config import word_vector_model_path
 from gensim.models import word2vec
 
 
-# 词典类的创建
 class Vocab(object):
     PAD = 0
     SOS = 1

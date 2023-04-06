@@ -1,7 +1,5 @@
-# step1
 import os
 
-# 设置项目代码库的root路径, 为后续所有的包导入提供便利
 root_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 print(root_path)
 

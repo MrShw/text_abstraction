@@ -1,4 +1,3 @@
-# step2
 import pandas as pd
 import numpy as np
 from multiprocessing import cpu_count, Pool

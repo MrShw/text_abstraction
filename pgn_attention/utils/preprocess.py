@@ -1,5 +1,3 @@
-# step3
-# 导入若干工具包
 import re
 import jieba
 import pandas as pd
@@ -7,16 +5,12 @@ import numpy as np
 import os
 import sys
 
-# 设置项目的root目录, 方便后续相关代码包的导入
 root_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(root_path)
 
-# 导入文本预处理的配置信息config1
 from pgn_attention.utils.config1 import *
-# 导入多核CPU并行处理数据的函数
 from pgn_attention.utils.multi_proc_utils import *
 
-# jieba载入自定义切词表
 jieba.load_userdict(user_dict_path)
 
 
@@ -29,7 +23,6 @@ def pad_proc(sentence, max_len, word_to_id):
     return ' '.join(sentence)
 
 
-# 加载停用词(程序调用)
 def load_stop_words(stop_word_path):
     f = open(stop_word_path, 'r', encoding='utf-8')
     stop_words = f.readlines()
@@ -37,12 +30,8 @@ def load_stop_words(stop_word_path):
 
     return stop_words
 
-
-# 加载停用词
 stop_words = load_stop_words(stop_words_path)
 
-
-# 清洗文本的函数，特殊符号去除(被sentence_proc调用)
 def clean_sentence(sentence):
     if isinstance(sentence, str):
         sentence = re.sub(r"\D(\d\.)\D", "", sentence)
@@ -58,16 +47,13 @@ def clean_sentence(sentence):
         return ''
 
 
-# 过滤停用词的函数
 def filter_stopwords(seg_list):
     stop_words = load_stop_words(stop_words_path)
-    words = [word for word in seg_list if word]     # seg_list: 切好词的列表 [word1 ,word2 .......]
+    words = [word for word in seg_list if word]
 
     return [word for word in words if word not in stop_words]
 
 
-
-# 语句处理的函数，预处理模块(处理一条句子, 被sentences_proc调用)
 def sentence_proc(sentence):
     sentence = clean_sentence(sentence)
     words = jieba.cut(sentence)
@@ -76,7 +62,6 @@ def sentence_proc(sentence):
     return ' '.join(words)
 
 
-# 语句处理的函数，预处理模块(处理一个句子列表, 对每个句子调用sentence_proc操作)
 def sentences_proc(df):
     for col_name in ['Brand', 'Model', 'Question', 'Dialogue']:
         df[col_name] = df[col_name].apply(sentence_proc)
@@ -87,7 +72,6 @@ def sentences_proc(df):
     return df
 
 
-# 用于数据加载+预处理(只需执行一次)
 def build_dataset(train_raw_data_path, test_raw_data_path):
     print('1. 加载原始数据')
     print(train_raw_data_path)
@@ -115,7 +99,6 @@ def build_dataset(train_raw_data_path, test_raw_data_path):
     test_df['X'] = test_df[['Question', 'Dialogue']].apply(lambda x: ' '.join(x), axis=1)
 
     print('5. 保存处理好的train_seg_data.csv、test_set_data.csv')
-    # 把建立的列merged去掉，该列对于神经网络无用，只用于训练词向量
     train_df = train_df.drop(['Question'], axis=1)
     train_df = train_df.drop(['Dialogue'], axis=1)
     train_df = train_df.drop(['Brand'], axis=1)
@@ -127,7 +110,6 @@ def build_dataset(train_raw_data_path, test_raw_data_path):
     test_df = test_df.drop(['Brand'], axis=1)
     test_df = test_df.drop(['Model'], axis=1)
     test_df = test_df.drop(['QID'], axis=1)
-    # 将处理后的数据存入持久化文件
     # train_df.to_csv(train_seg_path, index=None, header=True)
     test_df.to_csv(test_seg_path, index=None, header=False)
     train_df['data'] = train_df[['X', 'Y']].apply(lambda x: '<sep>'.join(x), axis=1)

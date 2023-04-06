@@ -15,8 +15,8 @@ pointer = True
 # Data
 max_vocab_size = 20000
 model_name = 'pgn_model'
-embed_file = root_path + '/data/wv/word2vec_pad.model'  # use pre-trained embeddings
-source = 'train'    # use value: train or  big_samples
+embed_file = root_path + '/data/wv/word2vec_pad.model'
+source = 'train'
 train_data_path = root_path + '/data/train.txt'
 val_data_path = root_path + '/data/dev.txt'
 test_data_path = root_path + '/data/test.txt'
@@ -29,11 +29,11 @@ decoder_save_name = root_path + '/src/saved_model/model_decoder.pt'
 attention_save_name = root_path + '/src/saved_model/model_attention.pt'
 reduce_state_save_name = root_path + '/src/saved_model/model_reduce_state.pt'
 model_save_path = root_path + '/src/saved_model/pgn_model.pt'
-max_enc_len = 300  # exclusive of special tokens such as EOS
-max_dec_len = 100  # exclusive of special tokens such as EOS
+max_enc_len = 300
+max_dec_len = 100
 truncate_enc = True
 truncate_dec = True
-# 下面两个参数关系到predict阶段的展示效果, 需要按业务场景调参
+
 min_dec_steps = 30
 # 在Greedy Decode的时候设置为50
 # max_dec_steps = 50
@@ -59,13 +59,12 @@ batch_size = 8
 is_cuda = False
 coverage = True
 
-# 下面3个参数都是第六章的优化策略
+
 fine_tune = False
 scheduled_sampling = False
 weight_tying = False
 
 max_grad_norm = 2.0
-# DEVICE = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
 DEVICE = "cpu"
 LAMBDA = 1
 

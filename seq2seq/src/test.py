@@ -1,5 +1,3 @@
-# step4
-# 最后一步
 import os
 import sys
 root_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -44,14 +42,9 @@ def test(params):
 def save_predict_result(results):
     print("读取原始测试数据...")
     test_df = pd.read_csv(test_raw_data_path)
-    # 填充结果
     print("构建新的DataFrame并保存文件...")
     test_df['Prediction'] = results
-
-    # 提取ID和预测结果两列
     test_df = test_df[['QID', 'Prediction']]
-
-    # 保存结果, 这里自动生成一个结果名
     test_df.to_csv(get_result_filename(), index=None, sep=',')
     print("保存测试结果完毕!")
 

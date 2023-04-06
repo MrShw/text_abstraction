@@ -1,4 +1,3 @@
-# step4
 import os
 
 train_writer = open('../data/train.txt', 'w', encoding='utf-8')
